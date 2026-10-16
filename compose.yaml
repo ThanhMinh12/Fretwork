@@ -1,0 +1,17 @@
+services:
+  fretwork:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      FRETWORK_COOKIE_SECURE: ${FRETWORK_COOKIE_SECURE:-false}
+      FRETWORK_SESSION_SECRET: ${FRETWORK_SESSION_SECRET:-}
+      FRETWORK_MAX_AUDIO_SECONDS: ${FRETWORK_MAX_AUDIO_SECONDS:-180}
+      FRETWORK_MAX_PENDING_JOBS: ${FRETWORK_MAX_PENDING_JOBS:-4}
+      FRETWORK_MAX_STORAGE_MB: ${FRETWORK_MAX_STORAGE_MB:-2048}
+    volumes:
+      - fretwork-data:/data
+    restart: unless-stopped
+
+volumes:
+  fretwork-data:

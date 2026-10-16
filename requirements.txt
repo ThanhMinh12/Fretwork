@@ -1,0 +1,35 @@
+# Install Basic Pitch itself first without dependencies:
+#   python -m pip install --no-deps basic-pitch==0.4.0
+# Then install this file. This selects the bundled ONNX model and avoids the
+# incompatible TensorFlow resolver path on newer Python versions.
+
+# Audio ML runtime
+torch==2.7.1
+librosa>=0.10,<0.12
+mir_eval>=0.7
+pretty_midi>=0.2.10
+resampy==0.4.3
+scikit-learn>=1.3
+onnxruntime>=1.17
+numpy>=1.26.4,<2
+scipy>=1.10
+soundfile>=0.12
+typing-extensions>=4.8
+
+# Guitar-specific temporal transcription. These commits are pinned because
+# the project is not published on PyPI despite its README claiming otherwise.
+hf-midi-transcription @ git+https://github.com/xavriley/hf_midi_transcription.git@96f6797881e9497cbfc8f8e5deccea9c1f2f7adc
+piano-transcription-inference @ git+https://github.com/xavriley/piano_transcription_inference.git@7568dc7f78b625e40cf9776e2806d164006610e3
+
+# Score and application layers
+music21>=9,<10
+langgraph>=0.2,<2
+langchain-core>=0.3,<2
+fastapi==0.143.3
+starlette==1.8.0
+pydantic==2.14.1
+anyio==4.15.1
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+mcp==2.3.0
+itsdangerous==2.2.0

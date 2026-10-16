@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "dataset": "GAPS",
+  "dataset_url": "https://huggingface.co/datasets/xavriley/GAPS",
+  "dataset_revision": "b4c89a33a639c7ae903e74102dfbb3e147e1417f",
+  "license": "MIT",
+  "split": "test",
+  "selection": "15 shortest score durations in the official test split, then ID",
+  "excerpt_start_seconds": 15.0,
+  "excerpt_duration_seconds": 30.0,
+  "items": [
+    {"id":"270_Jw1wc","title":"Etude No.24","audio":"audio/270_Jw1wc.wav","midi":"midi/270_Jw1wc.mid","audio_bytes":19709922,"audio_sha256":"e4ec249bd3909795e6dfb07e8d2bb7240574b2aaf39eb911bab448a3c659c009","midi_bytes":2239,"midi_git_oid":"674ea6f20ca43e07f05707753488a4674f68bf87"},
+    {"id":"341_1M1wc","title":"Unruhe","audio":"audio/341_1M1wc.wav","midi":"midi/341_1M1wc.mid","audio_bytes":24466854,"audio_sha256":"5a5b961938fc99c3c0fa7dfc5168ca62cd7655223ae1fdae0d5042c027f72f41","midi_bytes":4265,"midi_git_oid":"f94afa8a418ea1baef4aff9a677ea5161ddc2581"},
+    {"id":"291_3Sswc","title":"Caprice No. 7","audio":"audio/291_3Sswc.wav","midi":"midi/291_3Sswc.mid","audio_bytes":25909090,"audio_sha256":"1eb3a5dc9835798ca1c96fedb62f64173f700cd2a4e63429672f63f45b484734","midi_bytes":5706,"midi_git_oid":"96a0311601a0466681bd9b182f6e6544626b2c42"},
+    {"id":"354_-k1wc","title":"Bossa in Re","audio":"audio/354_-k1wc.wav","midi":"midi/354_-k1wc.mid","audio_bytes":24411126,"audio_sha256":"1d8811efe009aec55ffa089871058968b9c6b65a58de35cc15e031ace163363e","midi_bytes":5528,"midi_git_oid":"851ae863d0af62f02e8e92ded72a5d1b6f03a004"},
+    {"id":"118_VD1wc","title":"Zambra","audio":"audio/118_VD1wc.wav","midi":"midi/118_VD1wc.mid","audio_bytes":23178426,"audio_sha256":"adbbcb6914afdb2f52ecc42279e6fcc07709f7d8cb41abbba0ed8d8b41e782cb","midi_bytes":4943,"midi_git_oid":"b1ef31ea2638c3ea1d47a42f4329730a6834fb24"},
+    {"id":"208_c41wc","title":"Villancico de Navidad","audio":"audio/208_c41wc.wav","midi":"midi/208_c41wc.mid","audio_bytes":38445134,"audio_sha256":"db2025a4ad7a2a0a9d39b47859314ac3229c8e3b394f6003709b7375e165eb63","midi_bytes":3353,"midi_git_oid":"7369edf9792f0434e8be28e8dee757cb2fc54f0d"},
+    {"id":"063_bV1wc","title":"Allegro Brillante","audio":"audio/063_bV1wc.wav","midi":"midi/063_bV1wc.mid","audio_bytes":34847846,"audio_sha256":"cd131d37197a4a770f8b0f6c81fda47521b1398fa18e7f16d0c12c6e640d7942","midi_bytes":5235,"midi_git_oid":"54140b7d1e90b12f73e431decd9a802c169a6d93"},
+    {"id":"019_Vpswc","title":"J'aime","audio":"audio/019_Vpswc.wav","midi":"midi/019_Vpswc.mid","audio_bytes":29977226,"audio_sha256":"ce9d11d09a96081a1db1c9e2148badc46282edb0734f42da6c959bba03808718","midi_bytes":2976,"midi_git_oid":"c6ff13863f6432420d167ebd53e257767f836afa"},
+    {"id":"358_441wc","title":"Quiet Waters","audio":"audio/358_441wc.wav","midi":"midi/358_441wc.mid","audio_bytes":25802094,"audio_sha256":"9031f75a98feba301f90ab0e351fbf0dbfe182d52b0bc0660783446c573b91f1","midi_bytes":2408,"midi_git_oid":"ce8d246b2722cdc18f841369626421f69f0fbbb9"},
+    {"id":"294_BSswc","title":"El Viaje","audio":"audio/294_BSswc.wav","midi":"midi/294_BSswc.mid","audio_bytes":23994282,"audio_sha256":"8cb6b7a761db18fd0fb8e1340a96d03dcfad93e23d541dd67d68ffa5bbeca070","midi_bytes":3044,"midi_git_oid":"636233838152e345453c90066c2e321805c9ae6a"},
+    {"id":"100_Lf1wc","title":"Come, Heavy Sleep","audio":"audio/100_Lf1wc.wav","midi":"midi/100_Lf1wc.mid","audio_bytes":42741838,"audio_sha256":"7ceb6d5865536b9ce4dce3b7faff906d14b3d39a56872439f3e07ddc956f4787","midi_bytes":3361,"midi_git_oid":"2665ec2f6781d2a41ae5e7782e7627990b30024c"},
+    {"id":"222_W41wc","title":"Paquito","audio":"audio/222_W41wc.wav","midi":"midi/222_W41wc.mid","audio_bytes":28514926,"audio_sha256":"2f5f0134f247a03b94c1d33c06411254e6c8bde95b812dcdbd58ab149331c997","midi_bytes":4480,"midi_git_oid":"7a9402cb842e8001bbb04725d49ea004f209b06b"},
+    {"id":"051_rc1wc","title":"Waltz in D Major","audio":"audio/051_rc1wc.wav","midi":"midi/051_rc1wc.mid","audio_bytes":28045390,"audio_sha256":"198a1d74e4041b5456399fa2b82ebc944f485e37d465905f8c27dae18909b8b6","midi_bytes":4710,"midi_git_oid":"1f1a3a7d7c8354188ec88c21591b158f85a4a72a"},
+    {"id":"303_5N1wc","title":"Córdoba","audio":"audio/303_5N1wc.wav","midi":"midi/303_5N1wc.mid","audio_bytes":29678526,"audio_sha256":"5822f1314a0b7418a5b2ce0b294263ce31fbbd63a0b29f17329e6ecbae0f8dec","midi_bytes":3262,"midi_git_oid":"1eafd4794d8f186e1a651b7a7b6392b3225552a5"},
+    {"id":"104_xf1wc","title":"Burgalesa","audio":"audio/104_xf1wc.wav","midi":"midi/104_xf1wc.mid","audio_bytes":35414042,"audio_sha256":"f3b703c8154739a68cce921f027141c5b9ad0650abc190a8a411d2e3609c02fe","midi_bytes":2790,"midi_git_oid":"41ef9779fbab6c4cd7dcb6ff7d32c9d030aecda6"}
+  ]
+}

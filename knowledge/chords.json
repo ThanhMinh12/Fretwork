@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "description": "Local chord-shape vocabulary for deterministic, capo-relative guitar harmony retrieval.",
+  "root_names": ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"],
+  "templates": [
+    {
+      "id": "major-triad",
+      "quality": "major",
+      "suffix": "",
+      "intervals": [0, 4, 7],
+      "required": [0, 4],
+      "aliases": ["major", "maj", "M", "triad"],
+      "description": "Major triad: root, major third, and perfect fifth.",
+      "priority": 10
+    },
+    {
+      "id": "minor-triad",
+      "quality": "minor",
+      "suffix": "m",
+      "intervals": [0, 3, 7],
+      "required": [0, 3],
+      "aliases": ["minor", "min", "m", "minor triad"],
+      "description": "Minor triad: root, minor third, and perfect fifth.",
+      "priority": 11
+    },
+    {
+      "id": "dominant-seventh",
+      "quality": "dominant seventh",
+      "suffix": "7",
+      "intervals": [0, 4, 7, 10],
+      "required": [0, 4, 10],
+      "aliases": ["dominant", "dominant 7", "seventh", "7"],
+      "description": "Dominant seventh chord with a major third and minor seventh.",
+      "priority": 20
+    },
+    {
+      "id": "major-seventh",
+      "quality": "major seventh",
+      "suffix": "maj7",
+      "intervals": [0, 4, 7, 11],
+      "required": [0, 4, 11],
+      "aliases": ["major 7", "major seventh", "maj7", "M7"],
+      "description": "Major seventh chord with a major triad and major seventh.",
+      "priority": 21
+    },
+    {
+      "id": "minor-seventh",
+      "quality": "minor seventh",
+      "suffix": "m7",
+      "intervals": [0, 3, 7, 10],
+      "required": [0, 3, 10],
+      "aliases": ["minor 7", "minor seventh", "min7", "m7"],
+      "description": "Minor seventh chord with a minor triad and minor seventh.",
+      "priority": 22
+    },
+    {
+      "id": "suspended-second",
+      "quality": "suspended second",
+      "suffix": "sus2",
+      "intervals": [0, 2, 7],
+      "required": [0, 2],
+      "aliases": ["suspended 2", "suspended second", "sus2"],
+      "description": "Suspended chord replacing the third with a major second.",
+      "priority": 30
+    },
+    {
+      "id": "suspended-fourth",
+      "quality": "suspended fourth",
+      "suffix": "sus4",
+      "intervals": [0, 5, 7],
+      "required": [0, 5],
+      "aliases": ["suspended 4", "suspended fourth", "sus", "sus4"],
+      "description": "Suspended chord replacing the third with a perfect fourth.",
+      "priority": 31
+    },
+    {
+      "id": "added-ninth",
+      "quality": "added ninth",
+      "suffix": "add9",
+      "intervals": [0, 2, 4, 7],
+      "required": [0, 2, 4],
+      "aliases": ["add 9", "added ninth", "add9"],
+      "description": "Major triad with an added ninth and no required seventh.",
+      "priority": 40
+    },
+    {
+      "id": "minor-added-ninth",
+      "quality": "minor added ninth",
+      "suffix": "m(add9)",
+      "intervals": [0, 2, 3, 7],
+      "required": [0, 2, 3],
+      "aliases": ["minor add 9", "minor added ninth", "madd9", "m(add9)"],
+      "description": "Minor triad with an added ninth and no required seventh.",
+      "priority": 41
+    },
+    {
+      "id": "major-sixth",
+      "quality": "sixth",
+      "suffix": "6",
+      "intervals": [0, 4, 7, 9],
+      "required": [0, 4, 9],
+      "aliases": ["major 6", "sixth", "6"],
+      "description": "Major triad with an added major sixth.",
+      "priority": 42
+    },
+    {
+      "id": "minor-sixth",
+      "quality": "minor sixth",
+      "suffix": "m6",
+      "intervals": [0, 3, 7, 9],
+      "required": [0, 3, 9],
+      "aliases": ["minor 6", "minor sixth", "m6"],
+      "description": "Minor triad with an added major sixth.",
+      "priority": 43
+    },
+    {
+      "id": "diminished-triad",
+      "quality": "diminished",
+      "suffix": "dim",
+      "intervals": [0, 3, 6],
+      "required": [0, 3, 6],
+      "aliases": ["diminished", "dim", "o"],
+      "description": "Diminished triad built from two stacked minor thirds.",
+      "priority": 50
+    },
+    {
+      "id": "half-diminished-seventh",
+      "quality": "half diminished seventh",
+      "suffix": "m7b5",
+      "intervals": [0, 3, 6, 10],
+      "required": [0, 3, 6, 10],
+      "aliases": ["half diminished", "minor seven flat five", "m7b5", "ø7"],
+      "description": "Minor seventh chord with a diminished fifth.",
+      "priority": 51
+    },
+    {
+      "id": "augmented-triad",
+      "quality": "augmented",
+      "suffix": "aug",
+      "intervals": [0, 4, 8],
+      "required": [0, 4, 8],
+      "aliases": ["augmented", "aug", "+"],
+      "description": "Augmented triad with a raised fifth.",
+      "priority": 52
+    },
+    {
+      "id": "power-chord",
+      "quality": "power chord",
+      "suffix": "5",
+      "intervals": [0, 7],
+      "required": [0, 7],
+      "aliases": ["power", "power chord", "fifth", "5"],
+      "description": "Root and perfect fifth without a major or minor third.",
+      "priority": 60
+    }
+  ]
+}

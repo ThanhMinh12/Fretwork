@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+outputs/
+data/
+evaluation/data/
+evaluation/cache/
+evaluation/results/raw/
+web/node_modules/
+web/dist/
+*.tsbuildinfo
+.pytest_cache/
+.env
+.env.*
+!.env.example

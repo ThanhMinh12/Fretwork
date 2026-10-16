@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "run_date": "2026-08-12",
+  "benchmark": "15 fixed 30-second excerpts from the official GAPS test split",
+  "dataset_revision": "b4c89a33a639c7ae903e74102dfbb3e147e1417f",
+  "clips": 15,
+  "audio_seconds": 450,
+  "reference_notes": 2150,
+  "metrics": {
+    "gaps": {
+      "onset_precision": 0.9466294722510611,
+      "onset_recall": 0.9384325303130361,
+      "onset_f1": 0.942181356334579,
+      "offset_precision": 0.6324804091720035,
+      "offset_recall": 0.6280758082492822,
+      "offset_f1": 0.6300683822281272
+    },
+    "basic_pitch": {
+      "onset_precision": 0.6485568437790801,
+      "onset_recall": 0.8409849210194452,
+      "onset_f1": 0.7243743697665639,
+      "offset_precision": 0.28003430999623247,
+      "offset_recall": 0.36538191483566945,
+      "offset_f1": 0.31351147574635063
+    },
+    "conservative_ensemble": {
+      "onset_f1": 0.942181356334579,
+      "offset_f1": 0.6300683822281272
+    },
+    "naive_union": {
+      "onset_f1": 0.8321916335700069,
+      "offset_f1": 0.5544297002824565
+    }
+  },
+  "reviewer": {
+    "agreements": 1805,
+    "primary_only": 303,
+    "unsupported_proposals_gated": 847,
+    "naive_union_notes_admitted": 509,
+    "naive_union_octave_conflicts_blocked": 338,
+    "onset_f1_percentage_points_preserved_vs_naive_union": 10.99897227645721,
+    "offset_f1_percentage_points_preserved_vs_naive_union": 7.563868194567069,
+    "clips_improved_vs_primary": 0,
+    "clips_unchanged_vs_primary": 15,
+    "clips_degraded_vs_primary": 0
+  },
+  "runtime": {
+    "model_inference_seconds": 1525.6771299460088,
+    "device": "CPU",
+    "platform": "WSL2 x86_64"
+  },
+  "method_note": "No threshold was changed after inspecting this test run. This is an in-domain classical-guitar benchmark, not an anime-cover benchmark."
+}

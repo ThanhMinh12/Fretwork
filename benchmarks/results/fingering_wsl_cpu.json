@@ -1,0 +1,12 @@
+{
+  "run_date": "2026-08-12",
+  "benchmark": "deterministic mixed bass, chord, and upper-note passage",
+  "environment": "Python 3.12.3, WSL2 x86_64 CPU",
+  "repeats": 7,
+  "results": [
+    {"notes": 100, "clusters": 49, "median_ms": 109.51658, "assigned_ratio": 1.0, "max_candidates_per_cluster": 54},
+    {"notes": 250, "clusters": 125, "median_ms": 290.771985, "assigned_ratio": 1.0, "max_candidates_per_cluster": 54},
+    {"notes": 500, "clusters": 249, "median_ms": 568.416094, "assigned_ratio": 1.0, "max_candidates_per_cluster": 54},
+    {"notes": 1000, "clusters": 500, "median_ms": 1105.393007, "assigned_ratio": 1.0, "max_candidates_per_cluster": 54}
+  ]
+}
