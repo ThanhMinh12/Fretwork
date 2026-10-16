@@ -65,10 +65,12 @@ Source is public at [ThanhMinh12/Fretwork](https://github.com/ThanhMinh12/Fretwo
 Recordings, model weights and generated user data are excluded from Git.
 The portfolio links to the source and accurately labels hosting as pending.
 
-Core/API tests and the React build pass in GitHub Actions. Container builds and
-non-root startup checks run there because Docker Desktop integration is
-unavailable in this WSL environment; inspect the linked workflow before
-claiming a particular container check has passed.
+Core/API tests, the React build, the full container build and non-root startup
+checks pass in [GitHub Actions](https://github.com/ThanhMinh12/Fretwork/actions/runs/38979949440).
+The image serves both API and frontend, runs as UID 10001, and creates a private
+session-secret file. Actual model inference is separately verified by the
+native real-audio regression above; the container startup test is not an
+end-to-end inference benchmark. Docker Desktop remains unavailable locally.
 
 ## Reproduce
 
