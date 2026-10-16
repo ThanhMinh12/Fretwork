@@ -1,4 +1,4 @@
-# Release verification — October 17, 2026
+# Release verification — October 16, 2026
 
 The application is verified for local/portfolio use, not certified as an
 unrestricted multi-tenant service. Deployment is a separate milestone.
@@ -61,10 +61,14 @@ host to reuse. Real ML workers exceeded that memory budget during testing.
 Do not label this application publicly deployed until suitable authorized
 compute and persistent storage are available.
 
-Dockerfile and CI container checks are prepared. Docker Desktop integration is
-unavailable in this WSL environment, so a full container build is not claimed as
-locally verified. Public GitHub publication is awaiting the user's visibility
-choice; recordings, model weights and generated data are excluded by Git ignore.
+Source is public at [ThanhMinh12/Fretwork](https://github.com/ThanhMinh12/Fretwork).
+Recordings, model weights and generated user data are excluded from Git.
+The portfolio links to the source and accurately labels hosting as pending.
+
+Core/API tests and the React build pass in GitHub Actions. Container builds and
+non-root startup checks run there because Docker Desktop integration is
+unavailable in this WSL environment; inspect the linked workflow before
+claiming a particular container check has passed.
 
 ## Reproduce
 

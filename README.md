@@ -1,5 +1,7 @@
 # Fretwork
 
+[![Verify](https://github.com/ThanhMinh12/Fretwork/actions/workflows/verify.yml/badge.svg)](https://github.com/ThanhMinh12/Fretwork/actions/workflows/verify.yml)
+
 Fretwork is a free, local-first multi-agent system that turns a solo
 fingerstyle-guitar recording into a playable first-draft score:
 
@@ -14,9 +16,13 @@ No third-party AI API key, subscription, or paid model is involved. Audio stays
 on the machine running Fretwork. When self-hosted remotely, recordings are
 uploaded to that server—not processed inside the visitor's browser.
 
-## The deliberately over-engineered local stack
+The application is verified locally with real audio. Public hosting is pending
+suitable existing AWS capacity; see the [release report](docs/RELEASE-READINESS.md).
 
-Every requested AI/ML/agent pattern has a real job:
+## How it works
+
+Two independent models propose notes; the workflow reconciles their predictions,
+assigns playable fingerings, infers chord labels, and exports an editable score:
 
 ```text
 React + TypeScript upload, job tracking, and artifact review UI
@@ -75,10 +81,11 @@ the fast Basic Pitch-only option.
 
 ## Native install
 
-Use Python 3.11. On Ubuntu/Debian:
+The frozen CPU runtime is verified on Linux x86-64 with Python 3.11.
+On Ubuntu/Debian:
 
 ```bash
-sudo apt-get install ffmpeg git libsndfile1
+sudo apt-get install ffmpeg git libsndfile1 libgomp1
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
