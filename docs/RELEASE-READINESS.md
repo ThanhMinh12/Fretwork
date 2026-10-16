@@ -28,7 +28,8 @@ unrestricted multi-tenant service. Deployment is a separate milestone.
   the job or original recording.
 - Flat and slash-chord spelling is translated for music21. Unsupported chord
   extensions remain visible text annotations instead of disappearing from the
-  score. A regression test covers the six symbols found in the real recording.
+  score. A regression test covers seven flat, inversion, extension and power
+  chord examples, including a power chord which otherwise exports as no-chord.
   The final genuine two-model HTTP/browser replay verified **29 score
   annotations for all 29 predicted chords** (99 notes), including the extended
   chord text fallback.

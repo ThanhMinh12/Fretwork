@@ -59,6 +59,7 @@ def main():
                 assert score.tag == 'score-partwise' and score.findall('.//note')
                 annotations = len(score.findall('.//harmony')) + len(score.findall('.//direction-type/words'))
                 assert annotations == result['metrics']['chord_count'], 'A chord label was lost during score export'
+                assert all(item.findtext('kind') != 'none' for item in score.findall('.//harmony')), 'A chord was incorrectly exported as no-chord'
         with httpx.Client(base_url=args.url) as stranger:
             assert stranger.get('/api/jobs').json() == []
             assert stranger.get('/api/jobs/' + job_id).status_code == 404

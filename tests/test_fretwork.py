@@ -208,7 +208,7 @@ class FretboardTests(unittest.TestCase):
     def test_musicxml_preserves_flat_inversion_and_extended_chord_labels(self):
         import xml.etree.ElementTree as ET
 
-        symbols = ["Bbmaj7", "Bbsus2", "Ddim/Ab", "Am(add9)/B", "Bmaj7/Bb", "Gaug/Eb"]
+        symbols = ["Bbmaj7", "Bbsus2", "Ddim/Ab", "Am(add9)/B", "Bmaj7/Bb", "Gaug/Eb", "E5"]
         chords = [
             ChordLabel(symbol, index * 0.5, index * 0.5 + 0.5, 0.9, 0, 0, "test", (0, 4, 7))
             for index, symbol in enumerate(symbols)
@@ -224,6 +224,8 @@ class FretboardTests(unittest.TestCase):
         self.assertEqual(harmonies[0].findtext("root/root-alter"), "-1")
         self.assertEqual(harmonies[2].findtext("bass/bass-alter"), "-1")
         self.assertIn("Am(add9)/B", [word.text for word in words])
+        self.assertIn("E5", [word.text for word in words])
+        self.assertNotIn("none", [item.findtext("kind") for item in harmonies])
 
     @unittest.skipUnless(importlib.util.find_spec("music21"), "music21 is optional")
     def test_musicxml_contains_capo_relative_harmony_and_real_notes(self):

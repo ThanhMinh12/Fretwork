@@ -94,6 +94,9 @@ def _insert_chord_symbols(part, chords: Sequence[object], origin: float, scale: 
         normalized = re.sub(r"/([A-G])b", r"/\1-", normalized)
         try:
             annotation = harmony.ChordSymbol(normalized)
+            if not annotation.chordKind:
+                # e.g. E5 can parse without a kind, then export as "no chord".
+                raise ValueError("No exportable chord kind")
         except (ValueError, harmony.HarmonyException):
             # Preserve unsupported extensions verbatim rather than dropping
             # a model prediction or guessing different harmonic semantics.
