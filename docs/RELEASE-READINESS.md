@@ -95,6 +95,9 @@ Local real-model React checks passed: asynchronous jobs, **99 notes / 29 chord
 labels**, OpenSheetMusicDisplay engraving, every private download, foreign
 session denial, deletion and four widths (320–1440 px). This supersedes the
 former widget-demo deployment; `hf_space/app.py` remains a rollback option.
+The same workflow passed against the public hosted React app using the
+authorized free HF account after the anonymous test client reached its run
+limit. The final deployed bundle also verifies exactly one session bootstrap.
 
 Completed/failed jobs are deleted after an hour (checked every five minutes),
 or are lost on restart. Artifact/source routes retain signed-session ownership;
