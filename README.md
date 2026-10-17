@@ -17,9 +17,10 @@ on the machine running Fretwork. When self-hosted remotely, recordings are
 uploaded to that server—not processed inside the visitor's browser.
 
 [Try the live demo](https://huggingface.co/spaces/ThanhMinh12/Fretwork).
-The free ZeroGPU/Gradio demo runs the actual two-model pipeline and engraved
-score preview for 2–30 second recordings. It is separate from the full
-React/FastAPI app below. Queues and daily GPU limits apply; use only
+The free ZeroGPU deployment runs the actual React/TypeScript interface,
+FastAPI job/artifact routes, two-model pipeline, and engraved score preview.
+Gradio Server mode handles browser-dispatched GPU work behind the React UI.
+Uploads are limited to 30 seconds / 16 MB; GPU queues and daily limits apply. Use only
 non-sensitive audio. See [hosted setup and limits](hf_space/README.md) and the
 [release report](docs/RELEASE-READINESS.md).
 

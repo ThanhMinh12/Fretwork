@@ -52,3 +52,6 @@ def test_hf_embedding_uses_secure_partitioned_cookies(tmp_path, monkeypatch):
         assert 'samesite=none' in cookie.lower() and 'secure' in cookie.lower() and 'Partitioned' in cookie
         assert "frame-ancestors 'self' https://huggingface.co" in response.headers['content-security-policy']
         assert 'x-frame-options' not in response.headers
+        assert "connect-src 'self' https://huggingface.co" in response.headers['content-security-policy']
+        assert client.post('/gradio_api/upload', files={'file': ('unused.wav', b'no')}).status_code == 404
+        assert client.get('/gradio_api/file=/tmp/anything').status_code == 404

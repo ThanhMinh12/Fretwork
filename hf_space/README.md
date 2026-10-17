@@ -14,7 +14,7 @@ short_description: Guitar audio to chord-aware sheet music and tablature.
 
 # Fretwork · free demo
 
-Upload a 2–30 second guitar recording (16 MB maximum). The actual GAPS guitar
+Upload a guitar recording up to 30 seconds (16 MB maximum). The actual GAPS guitar
 CRNN and Basic Pitch ONNX models propose notes; the existing consensus,
 fingering, and harmony pipeline produces MusicXML, TAB, and an inspectable
 report. React engraves the generated MusicXML with OpenSheetMusicDisplay.

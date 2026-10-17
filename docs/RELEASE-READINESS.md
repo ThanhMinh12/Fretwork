@@ -58,16 +58,17 @@ object storage and a distributed durable queue are future production work.
 No new AWS resources were provisioned. The existing Detour App Runner has
 512 MB RAM and ephemeral H2 storage, and the configured region has no RDS/EC2
 host to reuse. Real ML workers exceeded that memory budget during testing.
-The full React/FastAPI stack still needs suitable hosting and persistent
-storage; its deployment must not be confused with the separate demo below.
+The React/FastAPI stack is now configured on the existing free ZeroGPU Space;
+durable production storage remains a separate requirement.
 
 Source is public at [ThanhMinh12/Fretwork](https://github.com/ThanhMinh12/Fretwork).
 Recordings, model weights and generated user data are excluded from Git.
-The user subsequently authorized free non-AWS hosting. A separate
-[live Gradio demo](https://huggingface.co/spaces/ThanhMinh12/Fretwork) now runs
+The user subsequently authorized free non-AWS hosting. The
+[live application](https://huggingface.co/spaces/ThanhMinh12/Fretwork) runs
 on free ZeroGPU (confirmed requested and actual hardware `zero-a10g`, no paid
-plan/hardware/credits enabled). The original React/FastAPI application and
-Python 3.11 CPU lock are unchanged. The hosted profile uses Python 3.12 /
+plan/hardware/credits enabled). The actual React UI and private FastAPI routes
+now run through Gradio Server mode, not the former Gradio widget interface.
+The Python 3.11 CPU/container lock remains unchanged. The hosted profile uses Python 3.12 /
 PyTorch 2.8 and shares the real transcription, consensus and harmony code.
 
 The hosted API processed a real 30-second guitar excerpt with both actual
@@ -83,11 +84,24 @@ the agent workflow, harmony and engraving run on CPU. CUDA placement happens
 at startup without upstream DataParallel; the parent caches activations only
 for the current recording and clears them after each job.
 
-The hosted demo accepts 2–30 second recordings, at most 16 MB, with bounded
-queues and 12 working sessions. Working sessions and registered Gradio cache
-files expire after an hour or restart. Download links are shareable capability
-links, **not** the original API's private artifact routes. The UI explicitly
-asks for non-sensitive uploads. See [hosted setup](../hf_space/README.md).
+The hosted React app accepts recordings up to 30 seconds / 16 MB. FastAPI
+creates owned jobs; React dispatches opaque, single-use capabilities through
+`@gradio/client`, preserving visitor ZeroGPU quota headers. Four additional
+registry tests cover reuse denial, bounded capacity, foreign cancellation and
+expiry; two full-stack adapter tests cover owned artifacts and secure
+partitioned iframe cookies. The combined local suites pass **59 tests**.
+
+Local real-model React checks passed: asynchronous jobs, **99 notes / 29 chord
+labels**, OpenSheetMusicDisplay engraving, every private download, foreign
+session denial, deletion and four widths (320–1440 px). This supersedes the
+former widget-demo deployment; `hf_space/app.py` remains a rollback option.
+
+Completed/failed jobs are deleted after an hour (checked every five minutes),
+or are lost on restart. Artifact/source routes retain signed-session ownership;
+public Gradio file uploads/downloads and run history are disabled in the hosted
+profile. Undispatched capabilities expire after three minutes and release worker
+capacity. Use only non-sensitive audio; session ownership is not account login.
+See [hosted setup](../hf_space/README.md).
 
 Core/API tests, the React build, the full container build and non-root startup
 checks pass in [GitHub Actions](https://github.com/ThanhMinh12/Fretwork/actions/runs/38979949440).
