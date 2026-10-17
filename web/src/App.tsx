@@ -109,7 +109,7 @@ export default function App() {
   };
 
   useEffect(() => { void loadHistory(); }, []);
-  useEffect(() => { void fetch('/api/runtime').then(r => r.json()).then(r => setHosted(Boolean(r.queued_inference))).catch(() => undefined); }, []);
+  useEffect(() => { void api.runtime().then(r => setHosted(Boolean(r.queued_inference))).catch(() => undefined); }, []);
   useEffect(() => {
     if (!job || !["queued", "processing"].includes(job.status)) return;
     const timer = window.setInterval(async () => {

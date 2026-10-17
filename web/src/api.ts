@@ -22,9 +22,19 @@ export interface Submission {
   renderPdf: boolean;
 }
 
+let runtimePromise: Promise<{queued_inference: boolean}> | undefined;
+function runtime() {
+  return runtimePromise ??= fetch('/api/runtime', {cache:'no-store'}).then(r => parse<{queued_inference: boolean}>(r));
+}
+async function request(path: string, options?: RequestInit) {
+  await runtime(); // Establish exactly one signed session before parallel calls.
+  return fetch(path, options);
+}
+
 export const api = {
-  jobs: () => fetch("/api/jobs").then((response) => parse<Job[]>(response)),
-  job: (id: string) => fetch(`/api/jobs/${id}`).then((response) => parse<Job>(response)),
+  runtime,
+  jobs: () => request("/api/jobs").then((response) => parse<Job[]>(response)),
+  job: (id: string) => request(`/api/jobs/${id}`).then((response) => parse<Job>(response)),
   async submit(values: Submission): Promise<Job> {
     const form = new FormData();
     form.append("audio", values.audio);
@@ -35,12 +45,12 @@ export const api = {
     form.append("max_span", String(values.maxSpan));
     form.append("max_attempts", String(values.maxAttempts));
     form.append("render_pdf", String(values.renderPdf));
-    const job = await fetch("/api/jobs", { method: "POST", body: form }).then((response) => parse<Job & { dispatch?: Dispatch }>(response));
+    const job = await request("/api/jobs", { method: "POST", body: form }).then((response) => parse<Job & { dispatch?: Dispatch }>(response));
     if (job.dispatch) void runDispatch(job.dispatch).catch(() => undefined);
     return job;
   },
   async remove(id: string): Promise<void> {
-    const response = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+    const response = await request(`/api/jobs/${id}`, { method: "DELETE" });
     if (!response.ok) await parse(response);
   },
 };
