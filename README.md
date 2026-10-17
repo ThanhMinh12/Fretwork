@@ -16,8 +16,12 @@ No third-party AI API key, subscription, or paid model is involved. Audio stays
 on the machine running Fretwork. When self-hosted remotely, recordings are
 uploaded to that server—not processed inside the visitor's browser.
 
-The application is verified locally with real audio. Public hosting is pending
-suitable existing AWS capacity; see the [release report](docs/RELEASE-READINESS.md).
+[Try the live demo](https://huggingface.co/spaces/ThanhMinh12/Fretwork).
+The free ZeroGPU/Gradio demo runs the actual two-model pipeline and engraved
+score preview for 2–30 second recordings. It is separate from the full
+React/FastAPI app below. Queues and daily GPU limits apply; use only
+non-sensitive audio. See [hosted setup and limits](hf_space/README.md) and the
+[release report](docs/RELEASE-READINESS.md).
 
 ## How it works
 

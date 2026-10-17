@@ -1,0 +1,4 @@
+git
+ffmpeg
+libsndfile1
+libgomp1

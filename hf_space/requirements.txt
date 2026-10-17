@@ -1,0 +1,23 @@
+# Isolated Python 3.12 / ZeroGPU profile. Do not replace requirements.lock.
+gradio==6.30.0
+spaces==0.51.3
+torch==2.8.0
+huggingface-hub==2.2.0
+numpy==1.26.4
+librosa==0.11.0
+mir-eval==0.8.2
+pretty-midi==0.2.11.post0
+resampy==0.4.3
+scikit-learn==1.9.1
+onnxruntime==1.31.0
+scipy==1.17.1
+soundfile==0.14.0
+music21==9.9.2
+langgraph==1.2.15
+langchain-core==1.6.12
+torchlibrosa==0.1.0
+matplotlib==3.11.2
+contourpy==1.3.3
+mido==1.3.3
+six==1.17.0
+verovio==6.3.0

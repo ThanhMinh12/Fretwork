@@ -58,12 +58,36 @@ object storage and a distributed durable queue are future production work.
 No new AWS resources were provisioned. The existing Detour App Runner has
 512 MB RAM and ephemeral H2 storage, and the configured region has no RDS/EC2
 host to reuse. Real ML workers exceeded that memory budget during testing.
-Do not label this application publicly deployed until suitable authorized
-compute and persistent storage are available.
+The full React/FastAPI stack still needs suitable hosting and persistent
+storage; its deployment must not be confused with the separate demo below.
 
 Source is public at [ThanhMinh12/Fretwork](https://github.com/ThanhMinh12/Fretwork).
 Recordings, model weights and generated user data are excluded from Git.
-The portfolio links to the source and accurately labels hosting as pending.
+The user subsequently authorized free non-AWS hosting. A separate
+[live Gradio demo](https://huggingface.co/spaces/ThanhMinh12/Fretwork) now runs
+on free ZeroGPU (confirmed requested and actual hardware `zero-a10g`, no paid
+plan/hardware/credits enabled). The original React/FastAPI application and
+Python 3.11 CPU lock are unchanged. The hosted profile uses Python 3.12 /
+PyTorch 2.8 and shares the real transcription, consensus and harmony code.
+
+The hosted API processed a real 30-second guitar excerpt with both actual
+models: **99 notes, 29 chord labels**, two engraved SVG score pages, nonempty
+TAB, and five downloadable artifacts (MusicXML, TAB, notes, chords and report).
+The observed run took **25.95 s** including the hosted workflow/transfer; this
+is a single run, not a latency guarantee. The test workspace was cleared.
+Seven hosted-adapter tests cover duration limits, bounded isolated workspaces,
+targeted cleanup, and actual MusicXML-to-SVG engraving.
+
+Only GAPS activation inference allocates a GPU; decoding, Basic Pitch ONNX,
+the agent workflow, harmony and engraving run on CPU. CUDA placement happens
+at startup without upstream DataParallel; the parent caches activations only
+for the current recording and clears them after each job.
+
+The hosted demo accepts 2–30 second recordings, at most 16 MB, with bounded
+queues and 12 working sessions. Working sessions and registered Gradio cache
+files expire after an hour or restart. Download links are shareable capability
+links, **not** the original API's private artifact routes. The UI explicitly
+asks for non-sensitive uploads. See [hosted setup](../hf_space/README.md).
 
 Core/API tests, the React build, the full container build and non-root startup
 checks pass in [GitHub Actions](https://github.com/ThanhMinh12/Fretwork/actions/runs/38979949440).
