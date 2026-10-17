@@ -24,8 +24,8 @@ jobs:
         run: python -m pytest api_tests -q
       - name: Hosted demo limits and MusicXML engraving
         run: |
-          pip install soundfile==0.14.0 verovio==6.3.0
-          python -m pytest hf_space/test_demo.py -q
+          pip install soundfile==0.14.0 verovio==6.3.0 gradio==6.30.0
+          python -m pytest hf_space/test_demo.py hf_space/test_fullstack.py -q
 
   web:
     runs-on: ubuntu-latest

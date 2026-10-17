@@ -16,6 +16,8 @@ from . import __version__
 from .config import Settings
 from .jobs import JobRunner, JobStore
 from .security import install_security, owner_id
+from .dispatch import DispatchRegistry
+from pydantic import BaseModel, Field
 
 
 AUDIO_EXTENSIONS = {".wav", ".mp3", ".m4a", ".flac", ".ogg"}
@@ -52,14 +54,19 @@ def _public(record: dict[str, Any]) -> dict[str, Any]:
     return visible
 
 
+class DispatchCancellation(BaseModel):
+    token: str = Field(max_length=128)
+
+
 def create_app(
     settings: Settings | None = None,
     transcribe=run_agent,
+    *, app_factory=FastAPI, queued_inference: bool = False,
 ) -> FastAPI:
     config = settings or Settings.from_env()
     store = JobStore(config)
     runner = JobRunner(config, store, transcribe)
-    app = FastAPI(
+    app = app_factory(
         title="Fretwork API",
         version=__version__,
         description="Asynchronous chord-aware fingerstyle transcription service.",
@@ -69,6 +76,25 @@ def create_app(
     app.state.settings = config
     app.state.store = store
     app.state.runner = runner
+    dispatches = DispatchRegistry(max_pending=config.max_pending_jobs)
+
+    if queued_inference:
+        @app.api(name="run_job", concurrency_id="inference", concurrency_limit=1)
+        def run_job(token: str) -> dict:
+            job_id = dispatches.claim(token)
+            runner._run(job_id)
+            return {"id": job_id, "status": store.get(job_id)["status"]}
+
+    @app.get("/api/runtime")
+    async def runtime(request: Request):
+        owner_id(request)
+        return {"queued_inference": queued_inference, "max_upload_mb": config.max_upload_bytes // 1024**2,
+                "max_audio_seconds": config.max_audio_seconds, "temporary": queued_inference}
+
+    @app.post("/api/dispatch/cancel", status_code=204, response_class=Response)
+    async def cancel_dispatch(request: Request, cancellation: DispatchCancellation):
+        dispatches.cancel(cancellation.token, owner_id(request))
+        return Response(status_code=204)
     install_security(app, config.data_dir, "FRETWORK", config.cors_origins, config.max_upload_bytes)
 
     def owned_job(request: Request, job_id: str) -> dict:
@@ -148,7 +174,7 @@ def create_app(
                 await _save_upload(tab_hint, hint_path, 2 * 1024 * 1024)
             # Tests can inject a runner; real requests must validate decoded
             # audio before committing a job or loading either model.
-            if transcribe is run_agent:
+            if transcribe is run_agent or queued_inference:
                 import soundfile as sf
                 try:
                     try:
@@ -192,8 +218,21 @@ def create_app(
             shutil.rmtree(run_dir, ignore_errors=True)
             runner.slots.release()
             raise
-        runner.submit(job_id)
-        return _public(record)
+        result = _public(record)
+        if queued_inference:
+            def expired():
+                store.update(job_id, status="failed", phase="Inference request expired or could not start",
+                             error="The browser queue could not start this job. Submit it again.")
+                runner.slots.release()
+            try:
+                token = dispatches.register(owner_id(request), job_id, expired)
+            except ValueError as exc:
+                expired()
+                raise HTTPException(status_code=429, detail=str(exc)) from exc
+            result["dispatch"] = {"endpoint": "/run_job", "token": token}
+        else:
+            runner.submit(job_id)
+        return result
 
     @app.get("/api/jobs/{job_id}")
     async def get_job(request: Request, job_id: str) -> dict:
@@ -240,8 +279,8 @@ def create_app(
         if assets.is_dir():
             app.mount("/assets", StaticFiles(directory=assets), name="assets")
 
-        @app.get("/{requested_path:path}", include_in_schema=False)
-        async def frontend(requested_path: str) -> FileResponse:
+        @app.get("/" if queued_inference else "/{requested_path:path}", include_in_schema=False)
+        async def frontend(requested_path: str = "") -> FileResponse:
             if requested_path.startswith("api/"):
                 raise HTTPException(status_code=404, detail="Endpoint not found")
             candidate = (config.frontend_dir / requested_path).resolve()

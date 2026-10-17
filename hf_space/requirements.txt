@@ -21,3 +21,4 @@ contourpy==1.3.3
 mido==1.3.3
 six==1.17.0
 verovio==6.3.0
+itsdangerous==2.2.0

@@ -1,4 +1,5 @@
 import type { Job } from "./types";
+import { runDispatch, type Dispatch } from "./dispatch";
 
 async function parse<T>(response: Response): Promise<T> {
   if (response.ok) return (await response.json()) as T;
@@ -34,7 +35,9 @@ export const api = {
     form.append("max_span", String(values.maxSpan));
     form.append("max_attempts", String(values.maxAttempts));
     form.append("render_pdf", String(values.renderPdf));
-    return fetch("/api/jobs", { method: "POST", body: form }).then((response) => parse<Job>(response));
+    const job = await fetch("/api/jobs", { method: "POST", body: form }).then((response) => parse<Job & { dispatch?: Dispatch }>(response));
+    if (job.dispatch) void runDispatch(job.dispatch).catch(() => undefined);
+    return job;
   },
   async remove(id: string): Promise<void> {
     const response = await fetch(`/api/jobs/${id}`, { method: "DELETE" });

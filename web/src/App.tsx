@@ -100,6 +100,7 @@ export default function App() {
   const [history, setHistory] = useState<Job[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hosted, setHosted] = useState(false);
   const audioInput = useRef<HTMLInputElement>(null);
   const hintInput = useRef<HTMLInputElement>(null);
 
@@ -108,6 +109,7 @@ export default function App() {
   };
 
   useEffect(() => { void loadHistory(); }, []);
+  useEffect(() => { void fetch('/api/runtime').then(r => r.json()).then(r => setHosted(Boolean(r.queued_inference))).catch(() => undefined); }, []);
   useEffect(() => {
     if (!job || !["queued", "processing"].includes(job.status)) return;
     const timer = window.setInterval(async () => {
@@ -133,8 +135,9 @@ export default function App() {
 
   return (
     <div className="app">
-      <header><a className="brand" href="#top"><span>F</span>Fretwork</a><nav><a href="#create">Transcribe</a><a href="#process">Process</a><a href="/api/docs">API</a></nav><p><i />LOCAL PROCESSING</p></header>
+      <header><a className="brand" href="#top"><span>F</span>Fretwork</a><nav><a href="#create">Transcribe</a><a href="#process">Process</a><a href="/api/docs">API</a></nav><p><i />{hosted ? 'FREE GPU DEMO' : 'LOCAL PROCESSING'}</p></header>
       <main id="top">
+        {hosted && <p style={{padding:'16px 0',fontSize:13}}>Free hosted demo · 30 seconds / 16 MB per recording. GPU queues and daily limits apply. Use non-sensitive audio; drafts expire after an hour.</p>}
         <section className="hero">
           <div className="hero-copy"><p className="eyebrow">OPEN MODELS · SELF-HOSTED · NO THIRD-PARTY AI API</p><h1>Audio in.<br/><em>Fingerstyle</em> out.</h1><p>Turn a solo-guitar recording into an editable score, playable TAB, and grounded chord timeline—then inspect every decision the specialist agents made.</p><a href="#create">Start a transcription <span>↓</span></a></div>
           <div className="score-art" aria-hidden="true"><span className="clef">𝄞</span><div className="staff">{Array.from({length: 5}).map((_, i) => <i key={i} />)}<b className="n1">♪</b><b className="n2">♩</b><b className="n3">♫</b></div><div className="fretboard">{Array.from({length: 6}).map((_, i) => <i key={i} />)}<b /><b /><b /><b /></div></div>
