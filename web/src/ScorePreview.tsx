@@ -16,7 +16,7 @@ export default function ScorePreview({url}: {url: string}) {
         if (!response.ok) throw new Error('Score download failed');
         const xml = await response.text();
         if (cancelled || !target.current) return;
-        display = new module.OpenSheetMusicDisplay(target.current, {autoResize:true, backend:'svg', drawTitle:true, drawComposer:false});
+        display = new module.OpenSheetMusicDisplay(target.current, {autoResize:true, backend:'svg', drawTitle:false, drawComposer:false, drawPartNames:false});
         await display.load(xml);
         if (cancelled) return;
         display.render(); setStatus('');
@@ -26,5 +26,5 @@ export default function ScorePreview({url}: {url: string}) {
     })();
     return () => {cancelled = true; controller.abort(); if (display) {display.AutoResizeEnabled = false; display.clear();}};
   }, [url]);
-  return <article className="score-preview"><div className="card-heading"><div><span>DIGITAL SHEET MUSIC</span><h3>Notation preview</h3></div><a href={url}>Download MusicXML ↗</a></div>{status && <p role="status">{status}</p>}<div ref={target} className="score-preview-canvas" aria-label="Generated sheet music" /></article>;
+  return <div className="notation-preview">{status && <p role="status">{status}</p>}<div ref={target} className="score-preview-canvas" aria-label="Generated sheet music" /></div>;
 }

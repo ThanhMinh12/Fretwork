@@ -1,20 +1,18 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { api } from "./api";
+import { api, type Runtime } from "./api";
 import type { Job } from "./types";
-import ScorePreview from './ScorePreview';
+import ScorePreview from "./ScorePreview";
 
 const audioAccept = ".wav,.mp3,.m4a,.flac,.ogg";
 
-function Icon({ name }: { name: "wave" | "upload" | "download" | "check" | "clock" | "spark" }) {
-  const path = {
-    wave: <path d="M3 12h2l2-7 3 14 3-11 2 8 2-4h4" />,
-    upload: <><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 17v3h16v-3"/></>,
-    download: <><path d="M12 4v12m0 0 5-5m-5 5-5-5"/><path d="M4 20h16"/></>,
+function Icon({ name }: { name: "upload" | "download" | "check" | "clock" }) {
+  const paths = {
+    upload: <><path d="M12 16V4m0 0L7 9m5-5 5 5" /><path d="M4 17v3h16v-3" /></>,
+    download: <><path d="M12 4v12m0 0 5-5m-5 5-5-5" /><path d="M4 20h16" /></>,
     check: <path d="m5 12 4 4L19 6" />,
-    clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
-    spark: <path d="m12 2 1.7 5.3L19 9l-5.3 1.7L12 16l-1.7-5.3L5 9l5.3-1.7Z" />,
+    clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   };
-  return <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">{path[name]}</svg>;
+  return <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
 
 function formatDuration(seconds: number): string {
@@ -23,68 +21,40 @@ function formatDuration(seconds: number): string {
 }
 
 function Status({ job }: { job: Job }) {
-  return (
-    <section className="run-status" aria-live="polite">
-      <div className={`status-orb ${job.status}`}><Icon name={job.status === "complete" ? "check" : "wave"} /></div>
-      <div className="status-copy">
-        <span>{job.status.toUpperCase()}</span>
-        <h2>{job.phase}</h2>
-        <p>{job.error ?? (job.status === "processing" ? "The guitar model and independent reviewer are reconciling the recording. CPU runs can take several minutes." : job.source_filename)}</p>
-      </div>
-      <strong>{Math.round(job.progress * 100)}%</strong>
-      <div className="progress"><i style={{ width: `${job.progress * 100}%` }} /></div>
-    </section>
-  );
+  const failed = job.status === "failed";
+  const progress = Math.min(100, Math.max(0, Math.round(job.progress * 100)));
+  return <section className={`run-status panel ${failed ? "failed" : ""}`} aria-live="polite">
+    <div className="status-heading"><Icon name="clock" /><h2>{failed ? "Couldn’t create this score" : job.status === "queued" ? "Your recording is queued" : "Creating your sheet music"}</h2>{!failed && <span>{progress}%</span>}</div>
+    <p>{failed ? job.error ?? "Please try again with a clean solo-guitar recording." : job.phase}</p>
+    {!failed && <><div className="progress" role="progressbar" aria-label="Transcription progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{ width: `${progress}%` }} /></div><p className="muted">You can leave this page open. Processing and GPU queues may take a few minutes.</p></>}
+  </section>;
 }
 
 function Results({ job }: { job: Job }) {
+  const [preview, setPreview] = useState<"score" | "tab">("score");
   const result = job.result!;
-  const metrics = result.metrics;
-  const artifactLabels: Record<string, string> = {
-    musicxml: "MusicXML score", tab: "ASCII TAB", chords: "Chord timeline",
-    events: "Editable events", report: "Agent report", pdf: "PDF score",
-  };
-  return (
-    <section className="result-section">
-      <div className="result-title"><div><span>TRANSCRIPTION COMPLETE</span><h2>{job.title}</h2></div><a className="primary-download" href={result.artifacts.musicxml?.url}><Icon name="download" />Open score</a></div>
-      <div className="metrics">
-        <div><span>HEURISTIC HEALTH</span><strong>{Math.round(metrics.heuristic_health * 100)}%</strong><small>playability signal</small></div>
-        <div><span>SELECTED CAPO</span><strong>{metrics.selected_capo || "—"}</strong><small>{job.options.capo === "auto" ? "inferred candidate" : "provided"}</small></div>
-        <div><span>NOTES ASSIGNED</span><strong>{Math.round(metrics.assigned_ratio * 100)}%</strong><small>{metrics.note_count} note events</small></div>
-        <div><span>ESTIMATED TEMPO</span><strong>{Math.round(metrics.bpm)}</strong><small>BPM · {formatDuration(metrics.duration_seconds)}</small></div>
-      </div>
-
-      <div className="review-grid">
-        <article className="tab-card">
-          <div className="card-heading"><div><span>PLAYABLE DRAFT</span><h3>Chord-aware TAB</h3></div><a href={result.artifacts.tab?.url}>Download .txt ↗</a></div>
-          <pre>{result.tab_preview || "TAB preview unavailable"}</pre>
-        </article>
-        <aside>
-          <article className="audio-card">
-            <span>REFERENCE RECORDING</span>
-            <audio controls src={result.artifacts.source?.url} />
-          </article>
-          <article className="critic-card">
-            <span>CRITIC NOTES</span>
-            {result.issues.length ? <ul>{result.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul> : <p><Icon name="check" />No automatic quality warnings</p>}
-            <small>This health score is not measured transcription accuracy. Review the draft by ear.</small>
-          </article>
-        </aside>
-      </div>
-
-      {result.artifacts.musicxml && <ScorePreview url={result.artifacts.musicxml.url} />}
-
-      <article className="chord-card">
-        <div className="card-heading"><div><span>HARMONY RAG</span><h3>Retrieved chord timeline</h3></div><b>{metrics.chord_count} labels</b></div>
-        <div className="chords">{result.chords.length ? result.chords.slice(0, 16).map((chord, index) => <div key={`${chord.start}-${index}`}><strong>{chord.shape_chord ?? chord.symbol ?? "?"}</strong><span>{Number(chord.start ?? 0).toFixed(1)}s</span></div>) : <p>No chord labels in this draft.</p>}</div>
-      </article>
-
-      <div className="bottom-grid">
-        <article className="trace-card"><div className="card-heading"><div><span>AGENT TRACE</span><h3>How the draft was made</h3></div><b>{result.profile}</b></div><ol>{result.messages.map((message, index) => <li key={`${index}-${message}`}>{message}</li>)}</ol></article>
-        <article className="downloads-card"><span>ALL ARTIFACTS</span>{Object.entries(result.artifacts).filter(([name]) => name !== "source").map(([name, artifact]) => <a href={artifact.url} key={name}><div><Icon name="download" /><span><strong>{artifactLabels[name] ?? name}</strong><small>{artifact.filename}</small></span></div><b>↗</b></a>)}</article>
-      </div>
-    </section>
-  );
+  const { metrics, artifacts } = result;
+  const labels: Record<string, string> = { chords: "Chord timeline", events: "Note events", report: "Transcription report", pdf: "PDF score" };
+  const extraArtifacts = Object.entries(artifacts).filter(([name]) => !["source", "musicxml", "tab"].includes(name));
+  return <section className="result-section" aria-label="Transcription result">
+    <div className="result-heading">
+      <div><p className="eyebrow"><Icon name="check" />Your score is ready</p><h2>{job.title}</h2><p className="muted">{metrics.note_count} notes · {metrics.chord_count} chord labels · {Math.round(metrics.bpm)} BPM · {formatDuration(metrics.duration_seconds)}</p></div>
+      {artifacts.musicxml && <a className="button primary" href={artifacts.musicxml.url}><Icon name="download" />Download score</a>}
+    </div>
+    <div className="panel preview-panel">
+      <div className="preview-toolbar"><div className="segmented" role="group" aria-label="Preview format"><button type="button" aria-pressed={preview === "score"} onClick={() => setPreview("score")}>Sheet music</button><button type="button" aria-pressed={preview === "tab"} onClick={() => setPreview("tab")}>Guitar TAB</button></div>{artifacts.tab && <a className="text-link" href={artifacts.tab.url}>Download TAB</a>}</div>
+      {preview === "score" && artifacts.musicxml ? <ScorePreview url={artifacts.musicxml.url} /> : <pre className="tab-preview">{result.tab_preview || "TAB preview unavailable."}</pre>}
+      <p className="draft-note">AI-generated draft. Check the notes and chords by ear before using.</p>
+    </div>
+    {artifacts.source && <details className="disclosure panel"><summary>Listen to your recording</summary><audio aria-label="Original recording" controls preload="none" src={artifacts.source.url} /></details>}
+    <details className="disclosure panel"><summary>Chords & transcription details</summary><div className="detail-content">
+      <h3>Chord timeline</h3><div className="chords">{result.chords.length ? result.chords.map((chord, index) => <div key={`${chord.start}-${index}`}><strong>{chord.shape_chord ?? chord.symbol ?? "?"}</strong><span>{Number(chord.start ?? 0).toFixed(1)}s</span></div>) : <p className="muted">No chords identified in this draft.</p>}</div>
+      <h3>Automatic checks</h3><p className="muted">Capo: {metrics.selected_capo === 0 ? "none" : metrics.selected_capo}{job.options.capo === "auto" ? " (estimated)" : ""} · Notes assigned to TAB: {Math.round(metrics.assigned_ratio * 100)}%</p><p className="muted">Playability signal: {Math.round(metrics.heuristic_health * 100)}%. This is a heuristic, not measured transcription accuracy.</p>
+      {result.issues.length ? <ul className="issue-list">{result.issues.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul> : <p className="muted">No automatic quality warnings.</p>}
+      <details className="processing-log"><summary>View processing log</summary><ol>{result.messages.map((message, index) => <li key={index}>{message}</li>)}</ol></details>
+    </div></details>
+    {extraArtifacts.length > 0 && <details className="disclosure panel"><summary>More downloads</summary><div className="download-list">{extraArtifacts.map(([name, artifact]) => <a href={artifact.url} key={name}><Icon name="download" /><span>{labels[name] ?? name}</span></a>)}</div></details>}
+  </section>;
 }
 
 export default function App() {
@@ -99,78 +69,84 @@ export default function App() {
   const [job, setJob] = useState<Job | null>(null);
   const [history, setHistory] = useState<Job[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hosted, setHosted] = useState(false);
+  const [runtime, setRuntime] = useState<Runtime | null>(null);
   const audioInput = useRef<HTMLInputElement>(null);
   const hintInput = useRef<HTMLInputElement>(null);
+  const resultTarget = useRef<HTMLDivElement>(null);
+  const busy = submitting || Boolean(job && ["queued", "processing"].includes(job.status));
 
   const loadHistory = async () => {
-    try { setHistory(await api.jobs()); } catch { /* Health is also reflected by submissions. */ }
+    try { setHistory(await api.jobs()); } catch { /* A submission displays connection failures. */ }
   };
-
-  useEffect(() => { void loadHistory(); }, []);
-  useEffect(() => { void api.runtime().then(r => setHosted(Boolean(r.queued_inference))).catch(() => undefined); }, []);
+  useEffect(() => { void loadHistory(); void api.runtime().then(setRuntime).catch(() => undefined); }, []);
+  useEffect(() => {
+    if (job) resultTarget.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+  }, [job?.id]);
   useEffect(() => {
     if (!job || !["queued", "processing"].includes(job.status)) return;
     const timer = window.setInterval(async () => {
       try {
-        const updated = await api.job(job.id);
-        setJob(updated);
+        const updated = await api.job(job.id); setJob(updated);
         if (["complete", "failed"].includes(updated.status)) void loadHistory();
       } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not refresh the job"); }
     }, 1500);
     return () => window.clearInterval(timer);
   }, [job]);
 
+  const chooseAudio = (file: File | undefined) => {
+    if (!file || busy) return;
+    if (!/\.(wav|mp3|m4a|flac|ogg)$/i.test(file.name)) { setError("Choose a WAV, MP3, M4A, FLAC, or OGG recording."); return; }
+    if (!file.size) { setError("This recording is empty. Choose another file."); return; }
+    if (runtime && file.size > runtime.max_upload_mb * 1024 ** 2) { setError(`Choose a recording smaller than ${runtime.max_upload_mb} MB.`); return; }
+    if (title === "Fretwork Transcription" || title === audio?.name.replace(/\.[^.]+$/, "").slice(0, 160)) setTitle(file.name.replace(/\.[^.]+$/, "").slice(0, 160));
+    setAudio(file); setError(null);
+  };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (busy) return;
     if (!audio) { setError("Choose a solo-guitar recording first."); return; }
     setSubmitting(true); setError(null);
-    try {
-      const created = await api.submit({ audio, tabHint, title, backend, capo, maxSpan, maxAttempts, renderPdf });
-      setJob(created); void loadHistory();
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "Submission failed"); }
+    try { const created = await api.submit({ audio, tabHint, title: title.trim() || "Fretwork Transcription", backend, capo, maxSpan, maxAttempts, renderPdf }); setJob(created); void loadHistory(); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Submission failed"); }
     finally { setSubmitting(false); }
   };
+  const remove = async (item: Job) => {
+    if (!window.confirm(`Delete “${item.title}” and its generated files?`)) return;
+    setDeleting(item.id);
+    try { await api.remove(item.id); if (job?.id === item.id) setJob(null); await loadHistory(); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Could not delete the draft"); }
+    finally { setDeleting(null); }
+  };
 
-  return (
-    <div className="app">
-      <header><a className="brand" href="#top"><span>F</span>Fretwork</a><nav><a href="#create">Transcribe</a><a href="#process">Process</a><a href="/api/docs">API</a></nav><p><i />{hosted ? 'FREE GPU DEMO' : 'LOCAL PROCESSING'}</p></header>
-      <main id="top">
-        {hosted && <p style={{padding:'16px 0',fontSize:13}}>Free hosted demo · 30 seconds / 16 MB per recording. GPU queues and daily limits apply. Use non-sensitive audio; drafts expire after an hour.</p>}
-        <section className="hero">
-          <div className="hero-copy"><p className="eyebrow">OPEN MODELS · SELF-HOSTED · NO THIRD-PARTY AI API</p><h1>Audio in.<br/><em>Fingerstyle</em> out.</h1><p>Turn a solo-guitar recording into an editable score, playable TAB, and grounded chord timeline—then inspect every decision the specialist agents made.</p><a href="#create">Start a transcription <span>↓</span></a></div>
-          <div className="score-art" aria-hidden="true"><span className="clef">𝄞</span><div className="staff">{Array.from({length: 5}).map((_, i) => <i key={i} />)}<b className="n1">♪</b><b className="n2">♩</b><b className="n3">♫</b></div><div className="fretboard">{Array.from({length: 6}).map((_, i) => <i key={i} />)}<b /><b /><b /><b /></div></div>
-        </section>
-
-        <section className="create-section" id="create">
-          <div className="section-number">01</div>
-          <form onSubmit={(event) => void submit(event)}>
-            <div className="section-heading"><div><span>NEW TRANSCRIPTION</span><h2>Recordings become<br/>working scores.</h2></div><p>Best with a clean solo fingerstyle performance. WAV, MP3, M4A, FLAC, and OGG are supported.</p></div>
-            <button className={`dropzone ${audio ? "selected" : ""}`} type="button" onClick={() => audioInput.current?.click()}><Icon name={audio ? "check" : "upload"}/><div><strong>{audio ? audio.name : "Choose a guitar recording"}</strong><span>{audio ? `${(audio.size / 1024 / 1024).toFixed(1)} MB · ready to upload` : "Click to browse · up to 200 MB"}</span></div><b>{audio ? "CHANGE" : "BROWSE"}</b></button>
-            <input ref={audioInput} className="sr-only" type="file" accept={audioAccept} onChange={(event) => { const file = event.target.files?.[0] ?? null; setAudio(file); if (file && title === "Fretwork Transcription") setTitle(file.name.replace(/\.[^.]+$/, "")); }} />
-            <div className="fields">
-              <label><span>SCORE TITLE</span><input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={160}/></label>
-              <label><span>MODEL ROUTE</span><select value={backend} onChange={(event) => setBackend(event.target.value)}><option value="ensemble">Ensemble · CRNN + independent review</option><option value="gaps">Guitar CRNN only</option><option value="basic_pitch">Fast draft · Basic Pitch</option></select></label>
-              <label><span>CAPO</span><select value={capo} onChange={(event) => setCapo(event.target.value)}><option value="auto">Auto · rank 0–7</option><option value="0">No capo</option>{Array.from({length: 12}, (_, i) => <option key={i + 1} value={i + 1}>Capo {i + 1}</option>)}</select></label>
-              <label><span>MAXIMUM STRETCH · {maxSpan} FRETS</span><input type="range" min="2" max="7" value={maxSpan} onChange={(event) => setMaxSpan(Number(event.target.value))}/></label>
-              <label><span>CRITIC ATTEMPTS</span><select value={maxAttempts} onChange={(event) => setMaxAttempts(Number(event.target.value))}><option value="1">1 · fastest</option><option value="2">2 · balanced</option><option value="3">3 · thorough</option></select></label>
-              <label className="hint"><span>ROUGH TAB · OPTIONAL</span><button type="button" onClick={() => hintInput.current?.click()}>{tabHint?.name ?? "Add .txt or .tab hint"}</button><input ref={hintInput} className="sr-only" type="file" accept=".txt,.tab" onChange={(event) => setTabHint(event.target.files?.[0] ?? null)}/></label>
-            </div>
-            <label className="check"><input type="checkbox" checked={renderPdf} onChange={(event) => setRenderPdf(event.target.checked)}/><span>Render PDF when LilyPond is installed</span></label>
-            {error && <p className="error" role="alert">{error}<button type="button" onClick={() => setError(null)}>×</button></p>}
-            <button className="submit" disabled={submitting}><Icon name="spark"/>{submitting ? "Uploading recording…" : "Run transcription agents"}<span>↗</span></button>
-          </form>
-        </section>
-
-        {job && <div id="result"><Status job={job}/>{job.status === "complete" && job.result && <Results job={job}/>}</div>}
-
-        <section className="process" id="process"><div className="section-number">02</div><div className="section-heading"><div><span>THE PIPELINE</span><h2>Nine focused agents.<br/>One playable draft.</h2></div><p>The guitar model proposes. A separate model reviews. The critic can route one bounded corrective pass before publishing.</p></div><div className="process-grid">{[["01","Listen","Timing + evidence"],["02","Propose","Guitar CRNN"],["03","Review","Basic Pitch"],["04","Reconcile","Acoustic consensus"],["05","Arrange","Voices + fingering"],["06","Publish","Score + TAB"]].map(([number,title,copy]) => <div key={number}><span>{number}</span><Icon name="wave"/><h3>{title}</h3><p>{copy}</p></div>)}</div></section>
-
-        {history.length > 0 && <section className="history"><div className="section-heading"><div><span>RECENT RUNS</span><h2>Your drafts</h2></div></div>{history.map((item) => <div className="history-row" key={item.id}><button className="history-open" onClick={() => setJob(item)}><Icon name={item.status === "complete" ? "check" : "clock"}/><span><strong>{item.title}</strong><small>{new Date(item.created_at).toLocaleString()} · {item.options.backend}</small></span><b>{item.status}</b></button><button className="delete-run" disabled={["queued","processing"].includes(item.status)} aria-label={`Delete ${item.title}`} onClick={() => {if (window.confirm(`Permanently delete “${item.title}” and its generated files?`)) void (async () => {try {await api.remove(item.id); if (job?.id === item.id) setJob(null); await loadHistory();} catch (caught) {setError(caught instanceof Error ? caught.message : 'Could not delete draft');}})();}}>Delete</button></div>)}</section>}
-      </main>
-      <footer><a className="brand" href="#top"><span>F</span>Fretwork</a><p>Local-first guitar transcription for drafts you can inspect and edit.</p><a href="/api/docs">REST API ↗</a></footer>
-    </div>
-  );
+  return <div className="app">
+    <a className="skip-link" href="#create">Skip to transcription</a>
+    <header className="topbar"><a className="brand" href="#top"><span>F</span>Fretwork</a><a className="text-link" href="https://github.com/ThanhMinh12/Fretwork" target="_blank" rel="noreferrer">GitHub ↗</a></header>
+    <main id="top">
+      <section className="intro"><h1>Guitar audio to sheet music.</h1><p>Upload a solo-guitar recording. Get an editable score and TAB.</p></section>
+      {error && <div className="error-banner" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error">×</button></div>}
+      <section className="create-section panel" id="create" aria-label="New transcription"><form onSubmit={(event) => void submit(event)}>
+        <button className={`dropzone ${audio ? "selected" : ""} ${dragging ? "dragging" : ""}`} type="button" disabled={busy} onClick={() => audioInput.current?.click()} onDragOver={(event) => { event.preventDefault(); if (!busy) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); chooseAudio(event.dataTransfer.files[0]); }}>
+          <span className="upload-icon"><Icon name={audio ? "check" : "upload"} /></span><strong>{audio ? audio.name : "Choose a guitar recording"}</strong><span>{audio ? `${(audio.size / 1024 ** 2).toFixed(1)} MB · Click to change` : "or drag and drop it here"}</span><small>WAV, MP3, M4A, FLAC, OGG{runtime ? ` · Up to ${runtime.max_audio_seconds} seconds / ${runtime.max_upload_mb} MB` : ""}</small>
+        </button>
+        <input ref={audioInput} className="sr-only" aria-label="Upload guitar recording" type="file" accept={audioAccept} disabled={busy} onChange={(event) => { chooseAudio(event.target.files?.[0]); event.target.value = ""; }} />
+        <details className="advanced"><summary>Advanced options</summary><fieldset className="fields" disabled={busy}>
+          <label><span>Score title</span><input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={160} /></label>
+          <label><span>Transcription model</span><select value={backend} onChange={(event) => setBackend(event.target.value)}><option value="ensemble">Ensemble (recommended)</option><option value="gaps">Guitar model only</option><option value="basic_pitch">Basic Pitch only</option></select></label>
+          <label><span>Capo</span><select value={capo} onChange={(event) => setCapo(event.target.value)}><option value="auto">Detect automatically</option><option value="0">No capo</option>{Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={i + 1}>Capo {i + 1}</option>)}</select></label>
+          <label><span>Maximum stretch: {maxSpan} frets</span><input type="range" min="2" max="7" value={maxSpan} onChange={(event) => setMaxSpan(Number(event.target.value))} /></label>
+          <label><span>Review passes</span><select value={maxAttempts} onChange={(event) => setMaxAttempts(Number(event.target.value))}><option value="1">1 — faster</option><option value="2">2 — balanced</option><option value="3">3 — thorough</option></select></label>
+          <div className="hint-field"><span>TAB hint (optional)</span><button className="button secondary" type="button" onClick={() => hintInput.current?.click()}>{tabHint?.name ?? "Choose .txt or .tab"}</button>{tabHint && <button className="text-link" type="button" onClick={() => setTabHint(null)}>Remove hint</button>}<input ref={hintInput} className="sr-only" aria-label="Upload TAB hint" type="file" accept=".txt,.tab" onChange={(event) => { setTabHint(event.target.files?.[0] ?? null); event.target.value = ""; }} /></div>
+          <label className="checkbox"><input type="checkbox" checked={renderPdf} onChange={(event) => setRenderPdf(event.target.checked)} /><span>Also create a PDF (requires LilyPond on the server)</span></label>
+        </fieldset></details>
+        <button className="button primary submit" disabled={!audio || busy}>{submitting ? "Uploading…" : busy ? "Transcribing…" : "Create sheet music"}</button>
+        {runtime?.queued_inference && <p className="demo-note">Free demo · GPU queues and daily limits apply. Files expire after an hour. Use non-sensitive audio.</p>}
+      </form></section>
+      <div ref={resultTarget} id="result" className="result-target">{job && (job.status === "complete" && job.result ? <Results key={job.id} job={job} /> : <Status job={job} />)}</div>
+      {history.length > 0 && <details className="history disclosure panel"><summary>Recent drafts <span className="count">{history.length}</span></summary><div className="history-list">{history.map((item) => <div className="history-row" key={item.id}><button className="history-open" onClick={() => { setJob(item); setError(null); }}><Icon name={item.status === "complete" ? "check" : "clock"} /><span><strong>{item.title}</strong><small>{new Date(item.created_at).toLocaleDateString()} · {item.status === "complete" ? "Ready" : item.status}</small></span></button><button className="text-link remove" disabled={["queued", "processing"].includes(item.status) || deleting === item.id} aria-label={`Delete ${item.title}`} onClick={() => void remove(item)}>{deleting === item.id ? "Deleting…" : "Delete"}</button></div>)}</div></details>}
+    </main>
+    <footer><span>Fretwork · Solo-guitar transcription</span><a href="/api/docs">API docs ↗</a></footer>
+  </div>;
 }
-
