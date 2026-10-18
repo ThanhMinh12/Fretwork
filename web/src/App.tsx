@@ -145,7 +145,7 @@ export default function App() {
 
   return <div className="app">
     <a className="skip-link" href="#workspace">Skip to workspace</a>
-    <header className="topbar"><a className="brand" href="#workspace" aria-label="Fretwork workspace"><img className="brand-logo" src="/brandmark.svg" width="36" height="36" alt="" /><span>Fretwork</span></a><div className="top-actions">
+    <header className="topbar"><a className="brand" href="#workspace" aria-label="Fretwork workspace"><img className="brand-logo" src="/assets/brandmark.svg" width="36" height="36" alt="" /><span>Fretwork</span></a><div className="top-actions">
       {history.length > 0 && <button className="quiet-button" aria-label="Recent scores" aria-expanded={navOpen} onClick={() => setNavOpen(!navOpen)}>Scores</button>}
       {view === "job" && <button className="button secondary" aria-label="New transcription" disabled={busy} onClick={() => { setView("new"); setAudio(null); setTitle("Fretwork Transcription"); setNavOpen(false); setError(null); }}><Icon name="plus" /><span className="desktop-label">New transcription</span><span className="mobile-label">New</span></button>}
       <details className="help-menu"><summary>Help</summary><div><p>Choose a clean solo-guitar recording, then create your score. Model and capo settings are optional.</p>{runtime && <p>WAV, MP3, M4A, FLAC, OGG · Up to {runtime.max_audio_seconds} seconds / {runtime.max_upload_mb} MB.</p>}{runtime?.queued_inference && <p>Free GPU demo. Queues and daily limits apply. Files expire after an hour; use non-sensitive audio.</p>}<a href="https://github.com/ThanhMinh12/Fretwork" target="_blank" rel="noreferrer">Source code ↗</a><a href="/api/docs">API documentation ↗</a></div></details>

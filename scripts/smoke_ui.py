@@ -116,7 +116,7 @@ def main():
         expect(page.locator('.welcome-description')).to_have_text('Turn your guitar recordings into sheet music, chords, and TAB.')
         expect(page.locator('.brand-logo')).to_have_js_property('complete', True)
         assert page.locator('.brand-logo').evaluate('(node) => node.naturalWidth') > 0
-        expect(page.locator('link[rel="icon"]')).to_have_attribute('href', '/brandmark.svg')
+        expect(page.locator('link[rel="icon"]')).to_have_attribute('href', '/assets/brandmark.svg')
         expect(page.get_by_text('Up to 30 seconds / 16 MB', exact=True)).to_be_visible()
         expect(page.get_by_role('button', name='Create sheet music', exact=True)).to_have_count(0)
         expect(page.locator('.advanced')).to_have_count(0)
