@@ -104,6 +104,7 @@ def main():
         page.route('**/api/**', handle)
         page.goto(args.url)
         expect(page.get_by_role('heading', name='Audio to sheet music')).to_be_visible()
+        expect(page.locator('.workspace-heading')).to_contain_text('Turn a solo-guitar recording into sheet music, chords, and TAB.')
         expect(page.get_by_text('Up to 30 seconds / 16 MB', exact=True)).to_be_visible()
         expect(page.get_by_role('button', name='Create sheet music', exact=True)).to_have_count(0)
         expect(page.locator('.advanced')).to_have_count(0)

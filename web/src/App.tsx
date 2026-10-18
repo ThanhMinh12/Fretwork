@@ -167,7 +167,7 @@ export default function App() {
         <div className={`workspace-inner ${view === "new" ? "upload-workspace" : ""}`}>
           {error && <div className="error-banner" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error">×</button></div>}
           {view === "new" ? <section className="create-section" aria-label="New transcription">
-            <div className="workspace-heading"><div><h1>Audio to sheet music</h1><p className="muted">{audio ? "Your recording is ready to transcribe." : "Choose a solo-guitar recording to get started."}</p></div></div>
+            <div className="workspace-heading"><div><h1>Audio to sheet music</h1><p className="muted">{audio ? "Your recording is ready to transcribe." : "Turn a solo-guitar recording into sheet music, chords, and TAB. Choose an audio file to get started."}</p></div></div>
             <form onSubmit={(event) => void submit(event)}>
               <button className={`dropzone ${audio ? "selected" : ""} ${dragging ? "dragging" : ""}`} type="button" disabled={busy} onClick={() => audioInput.current?.click()} onDragOver={(event) => { event.preventDefault(); if (!busy) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); chooseAudio(event.dataTransfer.files[0]); }}>
                 <span className="upload-icon"><Icon name={audio ? "check" : "upload"} /></span><strong>{audio ? audio.name : "Choose a guitar recording"}</strong><span>{audio ? `${(audio.size / 1024 ** 2).toFixed(1)} MB · Click to change` : "or drag and drop an audio file"}</span>
