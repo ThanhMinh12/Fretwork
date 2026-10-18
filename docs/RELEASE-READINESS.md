@@ -115,6 +115,28 @@ end-to-end inference benchmark. Docker Desktop remains unavailable locally.
 
 ## Reproduce
 
+### Interface update — October 18, 2026
+
+The React interface now starts with a single upload card. Advanced model,
+capo, and export options are collapsed by default. Results prioritize the
+engraved score and TAB toggle; diagnostics, the processing log, extra downloads,
+and recent drafts remain available on demand. Upload limits come from the API.
+
+The separate `scripts/smoke_ui.py` browser suite uses explicitly controlled API
+fixtures, not model inference. It verifies uploads, progress, real MusicXML
+engraving, TAB switching, downloads, deletion, error recovery, a single runtime
+bootstrap, and layouts at 320, 390, 768, and 1440 pixels. GitHub Actions runs it
+against the production web build and retains screenshots. Existing real-model
+evidence above remains separate; this UI update does not claim a new inference
+accuracy benchmark.
+
+```bash
+# Build web/ and serve it with Vite preview first.
+python scripts/smoke_ui.py --url http://127.0.0.1:4175
+```
+
+### Full pipeline
+
 ```bash
 python3.11 -m venv .venv
 source .venv/bin/activate

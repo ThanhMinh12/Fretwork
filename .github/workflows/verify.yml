@@ -40,6 +40,28 @@ jobs:
         working-directory: web
       - run: npm run build
         working-directory: web
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install browser test tools
+        run: |
+          pip install playwright==1.55.0
+          playwright install --with-deps chromium
+      - name: Verify the simplified transcription interface
+        run: |
+          node web/node_modules/vite/bin/vite.js preview web --host 127.0.0.1 --port 4175 > /tmp/fretwork-web.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4175/ >/dev/null; then break; fi
+            sleep 1
+          done
+          python scripts/smoke_ui.py --url http://127.0.0.1:4175 --screenshots /tmp/fretwork-ui
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fretwork-ui-verification
+          path: /tmp/fretwork-ui/
 
   container:
     runs-on: ubuntu-latest
