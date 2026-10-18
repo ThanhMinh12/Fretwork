@@ -117,15 +117,21 @@ end-to-end inference benchmark. Docker Desktop remains unavailable locally.
 
 ### Interface update — October 18, 2026
 
-The React interface now starts with a single upload card. Advanced model,
-capo, and export options are collapsed by default. Results prioritize the
-engraved score and TAB toggle; diagnostics, the processing log, extra downloads,
-and recent drafts remain available on demand. Upload limits come from the API.
+The opening screen has one main action: choose a recording. The create button
+and optional settings appear only after file selection. Upload, progress, and
+results replace one another rather than accumulating on the page. Sheet music
+is the default result; TAB, audio playback, and diagnostic details occupy
+separate views. History opens only through the Scores button, and additional
+export formats use one menu. Limits and technical links are available in Help;
+the short retention/privacy notice remains visible. Upload limits come from
+the API.
 
 The separate `scripts/smoke_ui.py` browser suite uses explicitly controlled API
 fixtures, not model inference. It verifies uploads, progress, real MusicXML
 engraving, TAB switching, downloads, deletion, error recovery, a single runtime
-bootstrap, and layouts at 320, 390, 768, and 1440 pixels. GitHub Actions runs it
+bootstrap, one visible main action on first load, settings/history shown only
+on request, stage replacement, and layouts at 320, 390, 768, and 1440 pixels.
+GitHub Actions runs it
 against the production web build and retains screenshots. Existing real-model
 evidence above remains separate; this UI update does not claim a new inference
 accuracy benchmark.
