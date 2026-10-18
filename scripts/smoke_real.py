@@ -73,7 +73,7 @@ def main():
                 context.add_cookies([{'name':cookie.name,'value':cookie.value,'url':args.url} for cookie in client.cookies.jar])
                 page = context.new_page()
                 page.goto(args.url)
-                page.locator('.history > summary').click()
+                page.get_by_role('button', name='Recent scores', exact=True).click()
                 page.locator('.history-open').filter(has_text='Real pipeline verification').first.click()
                 expect(page.locator('.result-section')).to_be_visible()
                 expect(page.locator('.score-preview-canvas svg').first).to_be_visible(timeout=60000)
