@@ -89,9 +89,15 @@ def main():
             route.fulfill(status=404, json={'detail': 'Unknown fixture route'})
 
     def responsive(page, name):
-        for width in (1440, 768, 390, 320):
+        for width in (1440, 1024, 768, 390, 320):
             page.set_viewport_size({'width': width, 'height': 900})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), f'{name} overflows at {width}px'
+            if name == 'empty':
+                story = page.locator('.welcome-story').bounding_box()
+                action = page.locator('.welcome-action').bounding_box()
+                assert story['x'] < action['x'] if width > 850 else story['y'] + story['height'] < action['y']
+                button = page.locator('.dropzone').bounding_box()
+                assert button['y'] + button['height'] <= 900, f'Upload action is below the fold at {width}px'
             if args.screenshots and width in (1440, 390):
                 page.screenshot(path=str(args.screenshots / f'fretwork-{name}-{width}.png'), full_page=True)
 
@@ -104,7 +110,13 @@ def main():
         page.route('**/api/**', handle)
         page.goto(args.url)
         expect(page.get_by_role('heading', name='Audio to sheet music')).to_be_visible()
-        expect(page.locator('.workspace-heading')).to_contain_text('Turn a solo-guitar recording into sheet music, chords, and TAB.')
+        expect(page.locator('.welcome-story h1')).to_contain_text('Your music.')
+        expect(page.locator('.welcome-story h1 em')).to_have_text('On the page.')
+        expect(page.locator('h1')).to_have_count(1)
+        expect(page.locator('.welcome-description')).to_have_text('Turn your guitar recordings into sheet music, chords, and TAB.')
+        expect(page.locator('.brand-logo')).to_have_js_property('complete', True)
+        assert page.locator('.brand-logo').evaluate('(node) => node.naturalWidth') > 0
+        expect(page.locator('link[rel="icon"]')).to_have_attribute('href', '/brandmark.svg')
         expect(page.get_by_text('Up to 30 seconds / 16 MB', exact=True)).to_be_visible()
         expect(page.get_by_role('button', name='Create sheet music', exact=True)).to_have_count(0)
         expect(page.locator('.advanced')).to_have_count(0)
@@ -118,6 +130,8 @@ def main():
         page.get_by_label('Upload guitar recording').set_input_files({'name': 'wrong.txt', 'mimeType': 'text/plain', 'buffer': b'invalid'})
         expect(page.get_by_role('alert')).to_contain_text('Choose a WAV')
         page.get_by_label('Upload guitar recording').set_input_files({'name': 'practice.wav', 'mimeType': 'audio/wav', 'buffer': b'controlled fixture'})
+        expect(page.locator('.welcome-story')).to_have_count(0)
+        expect(page.get_by_role('heading', level=1)).to_have_text('Audio to sheet music')
         page.locator('.advanced > summary').click()
         page.get_by_label('Score title').fill('Practice guitar')
         page.get_by_label('Review passes').select_option('2')
@@ -168,7 +182,7 @@ def main():
         assert state['runtime_requests'] == 1, state
         assert not errors, errors
         browser.close()
-    print(json.dumps({'status': 'passed', 'controlled_api_fixtures': True, 'real_model_inference': False, 'widths': [1440, 768, 390, 320], 'checks': ['one-action opening screen', 'settings only after file selection', 'upload replaced by progress and result', 'history only on request', 'file validation', 'polling', 'engraved score', 'TAB toggle', 'download', 'details', 'mobile deletion', 'server error', 'failed job retry', 'single session bootstrap']}))
+    print(json.dumps({'status': 'passed', 'controlled_api_fixtures': True, 'real_model_inference': False, 'widths': [1440, 1024, 768, 390, 320], 'checks': ['logo and favicon', 'branded headline with one visible upload action', 'headline gives way to the selected file', 'settings only after file selection', 'upload replaced by progress and result', 'history only on request', 'file validation', 'polling', 'engraved score', 'TAB toggle', 'download', 'details', 'mobile deletion', 'server error', 'failed job retry', 'single session bootstrap']}))
 
 
 if __name__ == '__main__':

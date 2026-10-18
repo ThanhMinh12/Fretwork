@@ -115,6 +115,16 @@ end-to-end inference benchmark. Docker Desktop remains unavailable locally.
 
 ## Reproduce
 
+### Branded welcome — October 18, 2026
+
+The front page uses a custom SVG guitar-pick/note mark, matching favicon, and
+the headline “Your music. On the page.” beside one upload card. The headline
+disappears after file selection; settings, history, and diagnostics remain
+on demand. No external fonts, trackers, or frontend dependencies were added.
+Controlled browser regressions cover the logo, five widths (320–1440 px),
+the visible upload action, compact selected-file view, and existing workflows.
+These are UI fixture tests, not a new model-inference or accuracy evaluation.
+
 ### Interface update — October 18, 2026
 
 The opening screen has one main action: choose a recording. The create button

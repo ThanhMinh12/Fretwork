@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { api, type Runtime } from "./api";
 import type { Job } from "./types";
 import ScorePreview from "./ScorePreview";
+import WelcomeStory from "./WelcomeStory";
 
 const audioAccept = ".wav,.mp3,.m4a,.flac,.ogg";
 
@@ -96,6 +97,7 @@ export default function App() {
   const hintInput = useRef<HTMLInputElement>(null);
   const workspace = useRef<HTMLElement>(null);
   const busy = submitting || Boolean(job && ["queued", "processing"].includes(job.status));
+  const welcome = view === "new" && !audio && !navOpen;
 
   const loadHistory = async () => {
     try { setHistory(await api.jobs()); } catch { /* Submissions display connection failures. */ }
@@ -143,7 +145,7 @@ export default function App() {
 
   return <div className="app">
     <a className="skip-link" href="#workspace">Skip to workspace</a>
-    <header className="topbar"><a className="brand" href="#workspace"><span>F</span>Fretwork</a><div className="top-actions">
+    <header className="topbar"><a className="brand" href="#workspace" aria-label="Fretwork workspace"><img className="brand-logo" src="/brandmark.svg" width="36" height="36" alt="" /><span>Fretwork</span></a><div className="top-actions">
       {history.length > 0 && <button className="quiet-button" aria-label="Recent scores" aria-expanded={navOpen} onClick={() => setNavOpen(!navOpen)}>Scores</button>}
       {view === "job" && <button className="button secondary" aria-label="New transcription" disabled={busy} onClick={() => { setView("new"); setAudio(null); setTitle("Fretwork Transcription"); setNavOpen(false); setError(null); }}><Icon name="plus" /><span className="desktop-label">New transcription</span><span className="mobile-label">New</span></button>}
       <details className="help-menu"><summary>Help</summary><div><p>Choose a clean solo-guitar recording, then create your score. Model and capo settings are optional.</p>{runtime && <p>WAV, MP3, M4A, FLAC, OGG · Up to {runtime.max_audio_seconds} seconds / {runtime.max_upload_mb} MB.</p>}{runtime?.queued_inference && <p>Free GPU demo. Queues and daily limits apply. Files expire after an hour; use non-sensitive audio.</p>}<a href="https://github.com/ThanhMinh12/Fretwork" target="_blank" rel="noreferrer">Source code ↗</a><a href="/api/docs">API documentation ↗</a></div></details>
@@ -163,11 +165,13 @@ export default function App() {
           <div className="sidebar-footer"><p>Scores are private to this browser.</p><a href="/api/docs">API documentation ↗</a></div>
         </div>
       </aside>}
-      <main id="workspace" ref={workspace} tabIndex={-1}>
-        <div className={`workspace-inner ${view === "new" ? "upload-workspace" : ""}`}>
+      <main id="workspace" className={welcome ? "welcome-main" : undefined} ref={workspace} tabIndex={-1}>
+        <div className={`workspace-inner ${view === "new" ? "upload-workspace" : ""} ${welcome ? "welcome-workspace" : ""}`}>
           {error && <div className="error-banner" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error">×</button></div>}
-          {view === "new" ? <section className="create-section" aria-label="New transcription">
-            <div className="workspace-heading"><div><h1>Audio to sheet music</h1><p className="muted">{audio ? "Your recording is ready to transcribe." : "Turn a solo-guitar recording into sheet music, chords, and TAB. Choose an audio file to get started."}</p></div></div>
+          {view === "new" ? <section className={`create-section ${welcome ? "welcome-layout" : ""}`} aria-label="New transcription">
+            {welcome && <WelcomeStory />}
+            <div className={welcome ? "welcome-action" : undefined}>
+            <div className="workspace-heading"><div>{welcome ? <h2>Audio to sheet music</h2> : <h1>Audio to sheet music</h1>}<p className="muted">{audio ? "Your recording is ready to transcribe." : "Choose a solo-guitar recording to begin."}</p></div></div>
             <form onSubmit={(event) => void submit(event)}>
               <button className={`dropzone ${audio ? "selected" : ""} ${dragging ? "dragging" : ""}`} type="button" disabled={busy} onClick={() => audioInput.current?.click()} onDragOver={(event) => { event.preventDefault(); if (!busy) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); chooseAudio(event.dataTransfer.files[0]); }}>
                 <span className="upload-icon"><Icon name={audio ? "check" : "upload"} /></span><strong>{audio ? audio.name : "Choose a guitar recording"}</strong><span>{audio ? `${(audio.size / 1024 ** 2).toFixed(1)} MB · Click to change` : "or drag and drop an audio file"}</span>
@@ -185,8 +189,10 @@ export default function App() {
               </fieldset></details>}
               {audio && <div className="form-actions"><button className="button primary" disabled={busy}>{submitting ? "Uploading…" : busy ? "Transcribing…" : "Create sheet music"}</button></div>}
             </form>
+            {welcome && runtime?.queued_inference && <p className="privacy-note">Use non-sensitive audio. Files expire after an hour.</p>}
+            </div>
           </section> : job && <div id="result">{job.status === "complete" && job.result ? <Results key={job.id} job={job} /> : <><div className="workspace-heading"><div><p className="eyebrow">Transcription</p><h1>{job.title}</h1></div></div><Status job={job} onRetry={() => { setView("new"); setError(null); }} /></>}</div>}
-          {runtime?.queued_inference && <p className="privacy-note">Use non-sensitive audio. Files expire after an hour.</p>}
+          {!welcome && runtime?.queued_inference && <p className="privacy-note">Use non-sensitive audio. Files expire after an hour.</p>}
         </div>
       </main>
     </div>
