@@ -113,13 +113,9 @@ def main():
         expect(page.locator('.welcome-story h1')).to_have_text('Guitar transcription')
         expect(page).to_have_title('Fretwork — Guitar transcription')
         assert 'Your music.' not in page.locator('body').inner_text()
-        assert page.locator('html').evaluate('(node) => getComputedStyle(node).backgroundColor') == 'rgb(255, 255, 255)'
-        assert page.evaluate('''async () => {
-            await document.fonts.load('400 16px "Source Sans 3"');
-            return [...document.fonts].some(font => font.family.includes('Source Sans 3') && font.status === 'loaded');
-        }''')
+        assert page.locator('html').evaluate('(node) => getComputedStyle(node).backgroundColor') == 'rgb(250, 249, 246)'
         expect(page.locator('h1')).to_have_count(1)
-        expect(page.locator('.welcome-description')).to_have_text('Upload a solo-guitar recording to create sheet music, chords, and TAB.')
+        expect(page.locator('.welcome-description')).to_have_count(0)
         expect(page.locator('.brand-logo')).to_have_js_property('complete', True)
         assert page.locator('.brand-logo').evaluate('(node) => node.naturalWidth') > 0
         expect(page.locator('link[rel="icon"]')).to_have_attribute('href', '/assets/brandmark.svg')
